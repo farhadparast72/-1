@@ -1,4 +1,4 @@
-name: Build APK (Debug) - No Wrapper
+name: Build APK (Debug) - No Wrapper (Auto-Fix)
 
 on:
   push:
@@ -12,6 +12,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ====== FIX 1: پاکسازی فایل‌های اضافه/قدیمی که باعث ارور می‌شن ======
+      - name: Cleanup stray sources (remove amlakultra)
+        run: |
+          set -e
+          echo "== Kotlin sources BEFORE =="
+          find app/src/main/java -type f -name "*.kt" -print || true
+
+          # این پوشه دقیقاً باعث خطاهای webkit/WebViewAssetLoader/R میشه
+          rm -rf app/src/main/java/com/example/amlakultra || true
+
+          echo "== Kotlin sources AFTER =="
+          find app/src/main/java -type f -name "*.kt" -print || true
+
+      # ====== FIX 2: مطمئن شو پروژه واقعاً ساختار Gradle دارد ======
+      - name: Preflight - repo tree
+        run: |
+          set -e
+          echo "== root =="
+          ls -la
+          echo "== app =="
+          ls -la app
+          echo "== workflows =="
+          ls -la .github/workflows || true
+
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
@@ -23,34 +47,51 @@ jobs:
 
       - name: Install Android SDK packages
         run: |
+          set -e
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      # چون gradlew نداری، خود Gradle را دانلود می‌کنیم و با آن build می‌کنیم
+      # ====== FIX 3: چون gradlew نداری، Gradle را دانلود می‌کنیم (لینک درست) ======
       - name: Download Gradle 8.2.1
         run: |
           set -e
           curl -fL --retry 5 --retry-all-errors -o gradle.zip https://services.gradle.org/distributions/gradle-8.2.1-bin.zip
+          file gradle.zip
           unzip -q gradle.zip
           echo "$PWD/gradle-8.2.1/bin" >> $GITHUB_PATH
 
       - name: Gradle version (debug)
-        run: gradle -v
+        run: |
+          set -e
+          gradle -v
 
+      # ====== Build ======
       - name: Build Debug APK
         run: |
           set -e
           gradle --no-daemon :app:assembleDebug --stacktrace
 
-      - name: List APKs (debug)
+      # ====== FIX 4: APK را پیدا کن (مسیرها گاهی فرق می‌کنند) ======
+      - name: Find APK
+        id: apk
         run: |
-          echo "---- outputs/apk ----"
-          ls -R app/build/outputs/apk || true
-          echo "---- find *.apk ----"
-          find . -type f -name "*.apk" -print || true
+          set -e
+          echo "== outputs/apk tree =="
+          find app/build/outputs/apk -maxdepth 6 -type f -print || true
+
+          APK="$(find app/build/outputs -type f -name '*.apk' -print -quit)"
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK not found."
+            echo "== outputs tree (debug) =="
+            find app/build/outputs -maxdepth 8 -type d -print -exec ls -la {} \; || true
+            exit 1
+          fi
+
+          echo "APK FOUND: $APK"
+          echo "apk=$APK" >> $GITHUB_OUTPUT
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ steps.apk.outputs.apk }}
           if-no-files-found: error
