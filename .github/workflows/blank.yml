@@ -1,4 +1,4 @@
-name: Build APK (Debug)
+name: Build APK (Debug) - No Wrapper
 
 on:
   push:
@@ -25,55 +25,32 @@ jobs:
         run: |
           sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-      - name: Locate Gradle project (find gradlew)
-        id: loc
+      # چون gradlew نداری، خود Gradle را دانلود می‌کنیم و با آن build می‌کنیم
+      - name: Download Gradle 8.2.1
         run: |
           set -e
-          if [ -f "./gradlew" ]; then
-            echo "dir=." >> $GITHUB_OUTPUT
-            echo "Found gradlew at repo root."
-          else
-            G=$(find . -maxdepth 5 -name gradlew -type f -print -quit)
-            if [ -z "$G" ]; then
-              echo "ERROR: gradlew not found anywhere."
-              echo "Repo tree (top):"
-              ls -la
-              echo "Files (maxdepth 3):"
-              find . -maxdepth 3 -type f -print
-              exit 1
-            fi
-            D=$(dirname "$G")
-            echo "dir=$D" >> $GITHUB_OUTPUT
-            echo "Found gradlew at: $G"
-          fi
+          curl -fL --retry 5 --retry-all-errors -o gradle.zip https://services.gradle.org/distributions/gradle-8.2.1-bin.zip
+          unzip -q gradle.zip
+          echo "$PWD/gradle-8.2.1/bin" >> $GITHUB_PATH
+
+      - name: Gradle version (debug)
+        run: gradle -v
 
       - name: Build Debug APK
         run: |
           set -e
-          cd "${{ steps.loc.outputs.dir }}"
-          chmod +x ./gradlew
-          ./gradlew --no-daemon assembleDebug --stacktrace
+          gradle --no-daemon :app:assembleDebug --stacktrace
 
-      - name: Find built APK
-        id: apk
+      - name: List APKs (debug)
         run: |
-          set -e
-          cd "${{ steps.loc.outputs.dir }}"
-          APK=$(find . -type f -path "*/build/outputs/apk/debug/*.apk" -print -quit)
-          if [ -z "$APK" ]; then
-            echo "ERROR: APK not found."
-            echo "Listing build/outputs:"
-            find . -maxdepth 6 -type d -name outputs -print -exec ls -la {} \; || true
-            echo "Listing any *.apk:"
-            find . -type f -name "*.apk" -print || true
-            exit 1
-          fi
-          echo "apk=$APK" >> $GITHUB_OUTPUT
-          echo "APK found at: $APK"
+          echo "---- outputs/apk ----"
+          ls -R app/build/outputs/apk || true
+          echo "---- find *.apk ----"
+          find . -type f -name "*.apk" -print || true
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: ${{ steps.apk.outputs.apk }}
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
