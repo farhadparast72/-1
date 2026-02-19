@@ -2,7 +2,7 @@ name: Android Build
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["**"]
   workflow_dispatch:
 
 jobs:
@@ -20,30 +20,35 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission
         run: chmod +x ./gradlew
 
-      # (اختیاری) اگر Release Signing می‌خوای:
-      # - name: Decode keystore
-      #   if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
-      #   run: |
-      #     echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > keystore.jks
-
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: List outputs (debug)
+        if: always()
+        run: |
+          echo "== find outputs =="
+          find app/build/outputs -type f || true
+          echo "== ls outputs =="
+          ls -R app/build/outputs || true
 
       - name: Upload Debug APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
-      # اگر پروژه‌ت AAB هم می‌سازه:
       - name: Build Debug AAB
-        run: ./gradlew :app:bundleDebug
+        run: ./gradlew :app:bundleDebug --stacktrace
 
       - name: Upload Debug AAB
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-aab
           path: app/build/outputs/bundle/debug/*.aab
+          if-no-files-found: warn
