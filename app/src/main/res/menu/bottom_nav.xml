@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:title="داشبورد"
+        android:icon="@android:drawable/ic_menu_view" />
+    <item
+        android:id="@+id/nav_saved"
+        android:title="ذخیره‌ها"
+        android:icon="@android:drawable/ic_menu_save" />
+    <item
+        android:id="@+id/nav_new"
+        android:title="ثبت"
+        android:icon="@android:drawable/ic_input_add" />
+    <item
+        android:id="@+id/nav_search"
+        android:title="جستجو"
+        android:icon="@android:drawable/ic_menu_search" />
+    <item
+        android:id="@+id/nav_settings"
+        android:title="تنظیمات"
+        android:icon="@android:drawable/ic_menu_preferences" />
+</menu>

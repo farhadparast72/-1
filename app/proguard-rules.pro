@@ -1,1 +1,1 @@
-# ProGuard rules (not used in debug)
+# Keep rules (none for now)
