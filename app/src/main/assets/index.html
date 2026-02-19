@@ -1,0 +1,2234 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>مدیریت املاک — Ultra + Dashboard</title>
+
+  <!-- Premium Persian/Arabic fonts (Display + Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --font-body: "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, Tahoma, Arial;
+      --font-display: "Noto Kufi Arabic", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", Roboto, Tahoma, Arial;
+
+      --bg0:#050815;
+      --bg1:#070b1c;
+
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.045);
+      --stroke: rgba(255,255,255,.12);
+      --stroke2: rgba(255,255,255,.16);
+
+      --text:#f3f6ff;
+      --muted:rgba(243,246,255,.72);
+      --muted2:rgba(243,246,255,.55);
+
+      --accent:#7aa2ff;
+      --accent2:#4ef0b5;
+      --accent3:#b38cff;
+      --warn:#ffd36a;
+      --danger:#ff6b86;
+
+      --shadow: 0 24px 80px rgba(0,0,0,.55);
+      --shadowSoft: 0 14px 42px rgba(0,0,0,.30);
+
+      --r:22px;
+      --drawerW: 340px;
+      --blur: 16px;
+    }
+
+    html[data-theme="light"]{
+      --bg0:#f6f8ff;
+      --bg1:#eef3ff;
+
+      --card: rgba(255,255,255,.82);
+      --card2: rgba(255,255,255,.64);
+      --stroke: rgba(10,20,40,.10);
+      --stroke2: rgba(10,20,40,.14);
+
+      --text:#0b1224;
+      --muted:rgba(11,18,36,.68);
+      --muted2:rgba(11,18,36,.52);
+
+      --accent:#2f63ff;
+      --accent2:#00b778;
+      --accent3:#7b4dff;
+      --warn:#c98a00;
+      --danger:#d93b5f;
+
+      --shadow: 0 18px 60px rgba(18,32,70,.14);
+      --shadowSoft: 0 12px 34px rgba(18,32,70,.10);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: var(--font-body);
+      background: radial-gradient(1200px 800px at 20% 0%, var(--bg1), var(--bg0));
+      color: var(--text);
+      line-height: 1.85;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      padding-bottom: calc(104px + env(safe-area-inset-bottom));
+      overflow-x:hidden;
+    }
+
+    /* Scene */
+    .scene{
+      position:fixed; inset:0; z-index:-3; pointer-events:none;
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(122,162,255,.20), transparent 60%),
+        radial-gradient(860px 560px at 82% 18%, rgba(78,240,181,.14), transparent 62%),
+        radial-gradient(900px 700px at 50% 110%, rgba(255,211,106,.12), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.03), transparent 28%, rgba(0,0,0,.22));
+      filter:saturate(1.06);
+    }
+    .scene::before,
+    .scene::after{
+      content:"";
+      position:absolute;
+      width: 900px;
+      height: 900px;
+      border-radius: 999px;
+      filter: blur(60px);
+      opacity:.55;
+      transform: translate3d(0,0,0);
+      mix-blend-mode: screen;
+    }
+    .scene::before{
+      left:-260px; top:-240px;
+      background: conic-gradient(from 130deg,
+        rgba(122,162,255,.55),
+        rgba(179,140,255,.45),
+        rgba(78,240,181,.35),
+        rgba(122,162,255,.55)
+      );
+      animation: blobA 14s ease-in-out infinite alternate;
+    }
+    .scene::after{
+      right:-320px; bottom:-420px;
+      background: conic-gradient(from 210deg,
+        rgba(78,240,181,.45),
+        rgba(122,162,255,.45),
+        rgba(255,211,106,.22),
+        rgba(78,240,181,.45)
+      );
+      animation: blobB 16s ease-in-out infinite alternate;
+      opacity:.50;
+    }
+    .aurora{
+      position:fixed; inset:-20% -10%;
+      z-index:-2;
+      pointer-events:none;
+      opacity:.55;
+      filter: blur(40px) saturate(1.1);
+      background:
+        radial-gradient(800px 420px at 20% 20%, rgba(122,162,255,.28), transparent 60%),
+        radial-gradient(720px 420px at 80% 30%, rgba(78,240,181,.18), transparent 62%),
+        radial-gradient(760px 480px at 55% 80%, rgba(179,140,255,.16), transparent 62%);
+      animation: aurora 10s ease-in-out infinite alternate;
+      transform: translate3d(0,0,0);
+    }
+    .grain{
+      position:fixed; inset:-50px; z-index:-1; pointer-events:none;
+      opacity:.08;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="4" stitchTiles="stitch"/></filter><rect width="140" height="140" filter="url(%23n)" opacity=".55"/></svg>');
+      background-size: 220px 220px;
+      mix-blend-mode: overlay;
+    }
+    @keyframes blobA{ from{ transform: translate3d(0,0,0) rotate(0deg); } to{ transform: translate3d(180px,120px,0) rotate(35deg); } }
+    @keyframes blobB{ from{ transform: translate3d(0,0,0) rotate(0deg); } to{ transform: translate3d(-180px,-140px,0) rotate(-30deg); } }
+    @keyframes aurora{ from{ transform: translate3d(-1%, -1%, 0) scale(1.02); } to{ transform: translate3d(2%, 1%, 0) scale(1.06); } }
+    @media (prefers-reduced-motion: reduce){
+      .scene::before,.scene::after,.aurora{ animation:none !important; }
+      *{ transition:none !important; animation:none !important; }
+    }
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:60;
+      background: rgba(0,0,0,.20);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-bottom:1px solid var(--stroke2);
+    }
+    html[data-theme="light"] header{ background: rgba(255,255,255,.62); }
+
+    .topbar{
+      max-width:1100px; margin:0 auto;
+      padding:12px 14px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .brand{min-width:0; display:flex; flex-direction:column}
+    .brand .t{
+      font-family: var(--font-display);
+      font-weight:900;
+      font-size:16px;
+      letter-spacing:-.3px;
+      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:64vw;
+      background: linear-gradient(90deg, rgba(122,162,255,1), rgba(78,240,181,1), rgba(179,140,255,1));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color: transparent;
+      text-shadow: 0 10px 22px rgba(0,0,0,.20);
+    }
+    html[data-theme="light"] .brand .t{ text-shadow:none; filter:saturate(1.05); }
+    .brand .s{color:var(--muted); font-size:12px; margin-top:3px; letter-spacing:-.1px;}
+    .spacer{margin-inline-start:auto}
+
+    /* Buttons */
+    .btn{
+      position:relative;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+      color:var(--text);
+      border-radius: 18px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:900;
+      user-select:none;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      min-height:44px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.18);
+      transition: transform .12s ease, filter .12s ease, background .12s ease, border-color .12s ease;
+      overflow:hidden;
+      text-decoration:none;
+      font-family: inherit;
+    }
+    .btn::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background: radial-gradient(420px 120px at 30% 0%, rgba(255,255,255,.18), transparent 60%);
+      opacity:.55;
+      pointer-events:none;
+    }
+    .btn:hover{ filter:brightness(1.06) }
+    .btn:active{ transform: translateY(1px) scale(.99) }
+    .btn.primary{ border-color: rgba(122,162,255,.78); background: linear-gradient(180deg, rgba(122,162,255,.32), rgba(122,162,255,.14)); }
+    .btn.danger{ border-color: rgba(255,107,134,.72); background: linear-gradient(180deg, rgba(255,107,134,.28), rgba(255,107,134,.12)); }
+    .btn.ghost{ box-shadow:none; background: rgba(255,255,255,.06); }
+    .btn.icon{width:44px; padding:10px}
+
+    /* Pills */
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border-radius: 999px;
+      padding:8px 10px;
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .pill.good{border-color: rgba(78,240,181,.45); background: rgba(78,240,181,.12);}
+    .pill.bad{border-color: rgba(255,107,134,.55); background: rgba(255,107,134,.12); color:var(--text);}
+    .pill.warn{border-color: rgba(255,211,106,.55); background: rgba(255,211,106,.12); color:var(--text);}
+
+    /* Layout */
+    main{max-width:1100px; margin:0 auto; padding:14px;}
+    .grid2{display:grid; grid-template-columns: 1fr; gap:12px; align-items:start}
+    @media(min-width:980px){ .grid2{grid-template-columns: 1.2fr .8fr} }
+
+    .view{display:none}
+    .view.active{display:block; animation: pop .16s ease both}
+    @keyframes pop{ from{opacity:0; transform: translateY(6px) scale(.995)} to{opacity:1; transform:none} }
+
+    /* Cards */
+    .card{
+      position:relative;
+      background: var(--card);
+      border:1px solid transparent;
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      padding:14px;
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      padding:1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg,
+        rgba(122,162,255,.55),
+        rgba(78,240,181,.35),
+        rgba(179,140,255,.35),
+        rgba(255,255,255,.10)
+      );
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events:none;
+      opacity:.45;
+    }
+    .card.soft{
+      background: var(--card2);
+      box-shadow:none;
+      border:1px solid var(--stroke);
+    }
+    .muted{color:var(--muted)}
+    .muted2{color:var(--muted2)}
+    .small{font-size:12px}
+    .hr{height:1px; background: var(--stroke); margin:12px 0; opacity:.85}
+
+    label.field{display:block; color:var(--muted); font-size:12px; margin:10px 0 6px}
+
+    input[type="text"], input[type="tel"], input[type="search"], input[type="number"], textarea, select{
+      width:100%;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      color:var(--text);
+      border-radius: 18px;
+      padding:12px 12px;
+      outline:none;
+      font-size:14px;
+      font-family: inherit;
+      transition: box-shadow .12s ease, border-color .12s ease, filter .12s ease;
+    }
+    input::placeholder, textarea::placeholder{ color: var(--muted2); }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(122,162,255,.80);
+      box-shadow: 0 0 0 4px rgba(122,162,255,.16);
+    }
+    select{cursor:pointer}
+
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row > *{flex:1 1 220px}
+    .row.compact > *{flex:0 0 auto}
+
+    /* Pretty toggles */
+    .ctrlGroup{
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.03);
+      border-radius: 20px;
+      padding:10px;
+      display:flex; flex-wrap:wrap; gap:10px;
+      position:relative;
+    }
+    .ctrlGroup input[type="checkbox"],
+    .ctrlGroup input[type="radio"]{
+      position:absolute;
+      opacity:0;
+      width:1px; height:1px;
+      pointer-events:none;
+    }
+    .ctrl{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border-radius: 20px;
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      font-size:13px;
+      min-height:44px;
+      position:relative;
+      padding-inline-start:46px;
+      transition: transform .12s ease, filter .12s ease, background .12s ease, border-color .12s ease;
+    }
+    label.ctrl::before{
+      content:"";
+      position:absolute;
+      inset-inline-start:14px;
+      top:50%;
+      transform:translateY(-50%);
+      width:18px; height:18px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.04);
+      border-radius: 7px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10);
+    }
+    .ctrlGroup input[type="radio"] + label.ctrl::before{ border-radius: 999px; }
+    .ctrlGroup input:checked + label.ctrl{
+      border-color: rgba(122,162,255,.82);
+      background: linear-gradient(180deg, rgba(122,162,255,.28), rgba(122,162,255,.10));
+      filter: brightness(1.03);
+    }
+    .ctrlGroup input:checked + label.ctrl::before{
+      border-color: rgba(122,162,255,.96);
+      background: rgba(122,162,255,.34);
+      box-shadow: 0 0 0 4px rgba(122,162,255,.12), inset 0 1px 0 rgba(255,255,255,.14);
+    }
+    .ctrlGroup input[type="checkbox"]:checked + label.ctrl::after{
+      content:"✓";
+      position:absolute;
+      inset-inline-start:18px;
+      top:50%;
+      transform:translateY(-52%);
+      font-weight:900;
+      font-size:13px;
+      color:var(--text);
+    }
+    .ctrlGroup input[type="radio"]:checked + label.ctrl::after{
+      content:"";
+      position:absolute;
+      inset-inline-start:19px;
+      top:50%;
+      transform:translateY(-50%);
+      width:10px; height:10px;
+      border-radius:999px;
+      background: var(--text);
+    }
+
+    /* List items */
+    .list{display:grid; grid-template-columns: 1fr; gap:10px}
+    @media(min-width:980px){ .list{grid-template-columns: 1fr 1fr} }
+
+    .item{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      border-radius: 24px;
+      padding:12px;
+      box-shadow: var(--shadowSoft);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .item:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    .item::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(520px 180px at 85% 16%, rgba(122,162,255,.16), transparent 60%),
+        radial-gradient(420px 220px at 20% 95%, rgba(78,240,181,.10), transparent 62%);
+      pointer-events:none;
+    }
+    .item::after{
+      content:"";
+      position:absolute;
+      top:14px; bottom:14px;
+      inset-inline-start:14px;
+      width:4px;
+      border-radius:999px;
+      background: linear-gradient(180deg, rgba(122,162,255,.95), rgba(78,240,181,.55), rgba(179,140,255,.55));
+      opacity:.92;
+      pointer-events:none;
+    }
+    .item h4{
+      margin:0;
+      font-family: var(--font-display);
+      font-size:15.5px;
+      line-height:1.65;
+      font-weight:900;
+      letter-spacing:-.2px;
+    }
+    .item .sub{margin-top:6px; color:var(--muted); font-size:12.8px; line-height:1.95}
+    .item .meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+    .item .btns{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+    .item .btns .btn{box-shadow:none}
+    .item .btns .btn.ghost{background: rgba(255,255,255,.06)}
+
+    .priceTag{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight:900;
+      font-size:12px;
+    }
+    .priceTag .k{ color: var(--muted); font-weight:800; }
+
+    .empty{
+      padding:16px;
+      border:1px dashed rgba(255,255,255,.22);
+      border-radius: 24px;
+      color:var(--muted);
+      text-align:center;
+      background: rgba(255,255,255,.03);
+    }
+    .empty .emoji{font-size:26px; margin-bottom:6px}
+
+    /* Drawer */
+    .overlay{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s ease;
+      z-index:80;
+    }
+    .overlay.show{opacity:1; pointer-events:auto}
+    .drawer{
+      position:fixed; top:0; bottom:0; right:0;
+      width: min(var(--drawerW), 86vw);
+      background: rgba(0,0,0,.28);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-left:1px solid var(--stroke2);
+      box-shadow: var(--shadow);
+      transform: translateX(105%);
+      transition:.22s ease;
+      z-index:90;
+      padding:12px;
+      display:flex; flex-direction:column; gap:10px;
+    }
+    html[data-theme="light"] .drawer{ background: rgba(255,255,255,.55); }
+    .drawer.show{transform: translateX(0)}
+    .navBtn{
+      width:100%;
+      justify-content:flex-start;
+      padding:12px 12px;
+      border-radius: 20px;
+      box-shadow:none;
+      background: rgba(255,255,255,.05);
+    }
+    .navBtn.active{
+      border-color: rgba(122,162,255,.80);
+      background: linear-gradient(180deg, rgba(122,162,255,.26), rgba(122,162,255,.10));
+    }
+    @media(min-width:980px){
+      .overlay{display:none !important}
+      .drawer{
+        position:sticky; top:84px;
+        transform:none !important;
+        width: 340px;
+        height: calc(100vh - 110px);
+        border-radius: 24px;
+        background: var(--card2);
+        backdrop-filter:none;
+        -webkit-backdrop-filter:none;
+      }
+      #btnDrawer{display:none}
+      body{ padding-bottom: 24px; }
+      .bottomNav{display:none !important}
+    }
+
+    /* Bottom Nav (6 items now) */
+    .bottomNav{
+      position:fixed;
+      left:12px; right:12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index:120;
+      border:1px solid var(--stroke2);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      padding:10px;
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap:8px;
+    }
+    html[data-theme="light"] .bottomNav{ background: rgba(255,255,255,.62); }
+    .bNavBtn{
+      border:1px solid transparent;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      border-radius: 20px;
+      min-height: 52px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      cursor:pointer;
+      user-select:none;
+      font-weight:900;
+      transition:.12s ease;
+      font-family: inherit;
+    }
+    .bNavBtn .i{font-size:18px; line-height:1}
+    .bNavBtn .t{font-size:11px}
+    .bNavBtn.active{
+      color: var(--text);
+      border-color: rgba(122,162,255,.65);
+      background: linear-gradient(180deg, rgba(122,162,255,.22), rgba(122,162,255,.10));
+    }
+
+    /* Toast + errors + banner */
+    .toast{
+      position:fixed;
+      right:14px;
+      bottom: calc(104px + env(safe-area-inset-bottom));
+      z-index:200;
+      background: linear-gradient(180deg, rgba(0,0,0,.52), rgba(0,0,0,.34));
+      border:1px solid var(--stroke2);
+      border-radius: 18px;
+      padding:10px 12px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.30);
+      display:none;
+      max-width: 92vw;
+    }
+    html[data-theme="light"] .toast{ background: linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.72)); }
+    .toast.show{display:block}
+    .toast b{display:block}
+    .toast small{color:var(--muted)}
+
+    .err{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 18px;
+      border:1px solid rgba(255,107,134,.55);
+      background: rgba(255,107,134,.12);
+      color:var(--text);
+      display:none;
+    }
+    .err.show{display:block}
+
+    .banner{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 18px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.06);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.95;
+    }
+
+    textarea.contract{min-height:280px; line-height:2.0; resize:vertical;}
+
+    /* Dashboard Pack */
+    .dashWrap{
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 24px;
+      border: 1px solid var(--stroke2);
+      background: rgba(255,255,255,.035);
+    }
+    .dashHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 10px;}
+    .dashTitle{font-family: var(--font-display); font-weight: 900; font-size: 14.5px;}
+    .dashHint{color: var(--muted); font-size: 12px; white-space: nowrap;}
+
+    .kpiGrid{display:grid; grid-template-columns: 1fr 1fr; gap:10px;}
+    @media(min-width:980px){ .kpiGrid{ grid-template-columns: repeat(4, 1fr); } }
+    .kpi{
+      position:relative; overflow:hidden;
+      border-radius: 22px;
+      border:1px solid var(--stroke2);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      box-shadow: var(--shadowSoft);
+      padding: 12px;
+      display:flex; gap:10px; align-items:center;
+    }
+    .kpi::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(280px 120px at 85% 15%, rgba(122,162,255,.20), transparent 65%),
+        radial-gradient(260px 140px at 15% 90%, rgba(78,240,181,.12), transparent 60%);
+      pointer-events:none;
+    }
+    .kpiIcon{
+      width:44px; height:44px;
+      border-radius: 16px;
+      display:flex; align-items:center; justify-content:center;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.06);
+      font-size:20px;
+      flex:0 0 auto;
+    }
+    .kpiBody{ min-width:0; }
+    .kpiT{ color: var(--muted); font-size: 12px; font-weight:800; }
+    .kpiV{ font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -.2px; margin-top: 2px; }
+    .kpiS{ color: var(--muted2); font-size: 12px; margin-top: 2px; }
+
+    .dashGrid2{display:grid; grid-template-columns: 1fr; gap:10px; margin-top: 10px;}
+    @media(min-width:980px){ .dashGrid2{ grid-template-columns: 1fr 1fr; } }
+
+    .dashCard{border-radius: 24px; border:1px solid var(--stroke2); background: rgba(255,255,255,.04); padding: 12px;}
+    .dashCardT{font-family: var(--font-display); font-weight: 900; font-size: 13.5px; margin-bottom: 10px;}
+
+    .barRow{display:grid; grid-template-columns: 86px 1fr 54px; gap:10px; align-items:center; margin: 10px 0;}
+    .barLbl{ color: var(--muted); font-size: 12px; font-weight:800; }
+    .barVal{ text-align:left; font-size:12px; color: var(--text); }
+    .barTrack{height: 10px; border-radius: 999px; border: 1px solid var(--stroke2); background: rgba(255,255,255,.04); overflow:hidden;}
+    .barFill{height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, rgba(122,162,255,.95), rgba(78,240,181,.65), rgba(179,140,255,.65)); transition: width .18s ease;}
+
+    .rankList, .recentList{ display:flex; flex-direction:column; gap:8px; }
+    .rankItem, .recentItem{
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.04);
+      border-radius: 18px;
+      padding: 10px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .rankLeft, .recentLeft{ min-width:0; }
+    .rankName, .recentName{
+      font-weight:900;
+      font-size: 12.5px;
+      color: var(--text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .rankMeta, .recentMeta{ color: var(--muted); font-size: 12px; margin-top:2px; }
+    .badgeNum{
+      flex:0 0 auto;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .dashEmpty{
+      color: var(--muted);
+      font-size: 12px;
+      text-align:center;
+      padding: 10px;
+      border: 1px dashed rgba(255,255,255,.20);
+      border-radius: 18px;
+      background: rgba(255,255,255,.02);
+    }
+
+    /* Search Advanced Filters */
+    .filterPanel{
+      margin-top: 12px;
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.04);
+      border-radius: 24px;
+      padding: 12px;
+    }
+    .filterHead{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom: 10px;}
+    .filterTitle{font-family: var(--font-display); font-weight: 900; font-size: 13.5px;}
+    .filterGrid{display:grid; grid-template-columns: 1fr; gap:10px; margin-top: 10px;}
+    @media(min-width:980px){
+      .filterGrid.cols2{ grid-template-columns: 1fr 1fr; }
+      .filterGrid.cols3{ grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .miniHint{color: var(--muted2); font-size: 12px; margin-top: 6px; line-height: 1.9;}
+    .filterLine{border-top:1px solid var(--stroke); margin:12px 0; opacity:.85}
+  </style>
+</head>
+
+<body>
+  <div class="scene" aria-hidden="true"></div>
+  <div class="aurora" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+<header>
+  <div class="topbar">
+    <button class="btn icon ghost" id="btnDrawer" type="button" aria-label="منو">☰</button>
+
+    <div class="brand">
+      <div class="t">مدیریت املاک — Ultra</div>
+      <div class="s">پریمیوم • داشبورد حرفه‌ای • فیلترهای پیشرفته</div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <span class="pill" id="storeStatus">…</span>
+    <button class="btn ghost" id="btnTheme" type="button">🌓 تم</button>
+  </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+    <b style="font-family:var(--font-display)">منو</b>
+    <button class="btn icon danger" id="btnClose" type="button" aria-label="بستن">✕</button>
+  </div>
+
+  <div class="card soft">
+    <button class="btn navBtn active" data-go="saved" type="button">📌 ثبت‌شده‌ها</button>
+    <button class="btn navBtn" data-go="dashboard" type="button">📊 داشبورد</button>
+    <button class="btn navBtn" data-go="new" type="button">📝 ثبت آگهی</button>
+    <button class="btn navBtn" data-go="search" type="button">🔎 جستجو</button>
+    <button class="btn navBtn" data-go="contract" type="button">📄 قرارداد</button>
+    <button class="btn navBtn" data-go="settings" type="button">⚙️ تنظیمات</button>
+  </div>
+
+  <div class="card soft" style="margin-top:auto">
+    <div class="muted small">تم سریع:</div>
+    <div class="row compact" style="gap:8px; margin-top:10px">
+      <button class="btn ghost" data-theme="dark" type="button">Dark</button>
+      <button class="btn ghost" data-theme="light" type="button">Light</button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <div class="grid2">
+    <div>
+
+      <!-- SAVED -->
+      <section class="view active" id="view-saved">
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <div>
+              <div style="font-family:var(--font-display); font-weight:900; font-size:15px">ثبت‌شده‌ها</div>
+              <div class="muted small" id="savedCount">0 مورد</div>
+            </div>
+            <div class="row compact" style="gap:8px">
+              <button class="btn ghost" data-go="dashboard" type="button">📊 داشبورد</button>
+              <button class="btn primary" data-go="new" type="button">＋ ثبت آگهی</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <!-- Dashboard mounts here when on Saved -->
+          <div id="dashMountSaved"></div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label class="field">جستجو (منطقه/موقعیت/نام/تلفن)</label>
+              <input id="sQ" type="search" placeholder="مثلاً: منطقه ۲، گوهردشت، علی، 0912..." />
+            </div>
+            <div>
+              <label class="field">مرتب‌سازی</label>
+              <select id="sSort">
+                <option value="new" selected>جدیدترین</option>
+                <option value="old">قدیمی‌ترین</option>
+                <option value="priceAsc">قیمت ↑</option>
+                <option value="priceDesc">قیمت ↓</option>
+                <option value="areaAsc">متراژ ↑</option>
+                <option value="areaDesc">متراژ ↓</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="list" id="savedList"></div>
+
+          <div class="empty" id="savedEmpty" style="display:none; margin-top:10px">
+            <div class="emoji">📭</div>
+            هنوز آگهی ذخیره نشده. از «ثبت آگهی» شروع کن.
+          </div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD (new dedicated view) -->
+      <section class="view" id="view-dashboard">
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <div>
+              <div style="font-family:var(--font-display); font-weight:900; font-size:15px">داشبورد حرفه‌ای</div>
+              <div class="muted small">آمار، ترکیب‌ها و جمع‌بندی هوشمند آگهی‌ها</div>
+            </div>
+            <div class="row compact" style="gap:8px">
+              <button class="btn ghost" data-go="saved" type="button">📌 ثبت‌شده‌ها</button>
+              <button class="btn primary" data-go="new" type="button">＋ ثبت آگهی</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <!-- Dashboard mounts here when on Dashboard -->
+          <div id="dashMountDashboard"></div>
+        </div>
+      </section>
+
+      <!-- NEW -->
+      <section class="view" id="view-new">
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <div>
+              <div style="font-family:var(--font-display); font-weight:900; font-size:15px">ثبت آگهی</div>
+              <div class="muted small" id="editHint"></div>
+            </div>
+            <button class="btn ghost" data-go="saved" type="button">📌 ثبت‌شده‌ها</button>
+          </div>
+
+          <div class="banner" id="lastAction">آخرین عملیات: —</div>
+
+          <div class="hr"></div>
+
+          <form id="form" novalidate>
+            <!-- Change: Title -> Region -->
+            <label class="field">منطقه (اجباری)</label>
+            <input id="fTitle" type="text" placeholder="مثلاً: منطقه ۲ / گوهردشت / عظیمیه..." />
+
+            <div class="row">
+              <div>
+                <label class="field">نام و نام خانوادگی فرد (اجباری)</label>
+                <input id="fPerson" type="text" placeholder="مثلاً: علی رضایی" />
+              </div>
+              <div>
+                <label class="field">شماره تلفن فرد (اجباری)</label>
+                <input id="fPhone" type="tel" inputmode="tel" placeholder="مثلاً: 0912xxxxxxx" />
+              </div>
+            </div>
+
+            <label class="field">نوع معامله (اجباری)</label>
+            <div class="ctrlGroup">
+              <input type="radio" id="deal_rent" name="deal" value="rent" checked>
+              <label class="ctrl" for="deal_rent">🏠 رهن و اجاره</label>
+
+              <input type="radio" id="deal_sale" name="deal" value="sale">
+              <label class="ctrl" for="deal_sale">🏷️ خرید و فروش</label>
+            </div>
+
+            <label class="field">نوع ملک (اجباری)</label>
+            <div class="ctrlGroup">
+              <input type="radio" id="t_com" name="type" value="commercial" checked>
+              <label class="ctrl" for="t_com">🏬 تجاری</label>
+
+              <input type="radio" id="t_res" name="type" value="residential">
+              <label class="ctrl" for="t_res">🏡 مسکونی</label>
+
+              <input type="radio" id="t_sto" name="type" value="storage">
+              <label class="ctrl" for="t_sto">📦 انباری</label>
+
+              <input type="radio" id="t_gar" name="type" value="gardenhouse">
+              <label class="ctrl" for="t_gar">🌿 خونه باغ</label>
+            </div>
+
+            <div id="resSubWrap" style="display:none">
+              <label class="field">زیرنوع مسکونی (اجباری)</label>
+              <div class="ctrlGroup">
+                <input type="radio" id="rs_ap" name="resSub" value="apartment" checked>
+                <label class="ctrl" for="rs_ap">🏢 آپارتمانی</label>
+
+                <input type="radio" id="rs_vi" name="resSub" value="villa">
+                <label class="ctrl" for="rs_vi">🏘️ ویلایی</label>
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label class="field">موقعیت (اجباری)</label>
+                <input id="fLocation" type="text" placeholder="مثلاً: کرج، گوهردشت..." />
+              </div>
+              <div>
+                <label class="field">متراژ (اجباری)</label>
+                <input id="fArea" type="number" inputmode="numeric" placeholder="مثلاً: 300" />
+              </div>
+            </div>
+
+            <div id="priceRentBox">
+              <label class="field">مبالغ رهن و اجاره</label>
+              <div class="row">
+                <div>
+                  <label class="field">مبلغ رهن / ودیعه (اجباری)</label>
+                  <input id="fDeposit" type="number" inputmode="numeric" placeholder="مثلاً: 500000000" />
+                </div>
+                <div>
+                  <label class="field">اجاره ماهانه (اجباری / یا 0 برای رهن کامل)</label>
+                  <input id="fMonthly" type="number" inputmode="numeric" placeholder="مثلاً: 15000000" />
+                </div>
+                <div>
+                  <label class="field">بیعانه / پیش‌پرداخت (اختیاری)</label>
+                  <input id="fBayaneRent" type="number" inputmode="numeric" placeholder="مثلاً: 20000000" />
+                </div>
+              </div>
+            </div>
+
+            <div id="priceSaleBox" style="display:none">
+              <label class="field">مبالغ خرید و فروش</label>
+              <div class="row">
+                <div>
+                  <label class="field">قیمت فروش (اجباری)</label>
+                  <input id="fSalePrice" type="number" inputmode="numeric" placeholder="مثلاً: 3500000000" />
+                </div>
+                <div>
+                  <label class="field">بیعانه (اختیاری)</label>
+                  <input id="fBayaneSale" type="number" inputmode="numeric" placeholder="مثلاً: 100000000" />
+                </div>
+              </div>
+            </div>
+
+            <label class="field">برق</label>
+            <div class="ctrlGroup">
+              <input type="radio" id="e_single" name="elec" value="single" checked>
+              <label class="ctrl" for="e_single">⚡ تک فاز</label>
+
+              <input type="radio" id="e_three" name="elec" value="three">
+              <label class="ctrl" for="e_three">⚡⚡⚡ سه فاز</label>
+            </div>
+
+            <label class="field">آپشن‌ها</label>
+            <div class="ctrlGroup">
+              <input type="checkbox" id="o_key">
+              <label class="ctrl" for="o_key">🔑 کلید اول</label>
+
+              <input type="checkbox" id="o_kol">
+              <label class="ctrl" for="o_kol">🧱 کلنگی</label>
+
+              <input type="checkbox" id="o_full">
+              <label class="ctrl" for="o_full">✨ فول امکانات</label>
+            </div>
+
+            <label class="field">امکانات (اختیاری)</label>
+            <div class="ctrlGroup">
+              <input type="checkbox" class="amen" id="a1" value="کمد و کابینت"><label class="ctrl" for="a1">🧰 کمد و کابینت</label>
+              <input type="checkbox" class="amen" id="a2" value="گاز شهری"><label class="ctrl" for="a2">🔥 گاز شهری</label>
+              <input type="checkbox" class="amen" id="a3" value="پارکینگ"><label class="ctrl" for="a3">🚗 پارکینگ</label>
+              <input type="checkbox" class="amen" id="a4" value="آسانسور"><label class="ctrl" for="a4">🛗 آسانسور</label>
+              <input type="checkbox" class="amen" id="a5" value="کولر"><label class="ctrl" for="a5">❄️ کولر</label>
+              <input type="checkbox" class="amen" id="a6" value="پکیج/شوفاژ"><label class="ctrl" for="a6">♨️ پکیج/شوفاژ</label>
+              <input type="checkbox" class="amen" id="a7" value="نگهبانی"><label class="ctrl" for="a7">🛡️ نگهبانی</label>
+            </div>
+
+            <label class="field">توضیحات (اختیاری)</label>
+            <textarea id="fDesc" rows="3" placeholder="نکته‌های مهم…"></textarea>
+
+            <div class="hr"></div>
+
+            <button class="btn primary" id="btnSave" type="button" style="width:100%; min-height:56px; font-size:15px">
+              ✅ ذخیره آگهی
+            </button>
+
+            <div class="row compact" style="gap:8px; margin-top:10px">
+              <button class="btn ghost" type="button" id="btnClear">🧹 پاک کردن فرم</button>
+              <button class="btn danger" type="button" id="btnCancelEdit" style="display:none">✖️ لغو ویرایش</button>
+            </div>
+
+            <div class="err" id="formErr"></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- SEARCH -->
+      <section class="view" id="view-search">
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <div>
+              <div style="font-family:var(--font-display); font-weight:900; font-size:15px">جستجو</div>
+              <div class="muted small" id="searchCount">0 مورد</div>
+            </div>
+            <button class="btn ghost" id="btnResetSearch" type="button">↺ ریست</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <label class="field">جستجو کلی (منطقه/موقعیت/نام/تلفن)</label>
+          <input id="q" type="search" placeholder="مثلاً: منطقه ۲، گوهردشت، علی، 0912..." />
+
+          <div class="filterPanel" id="filterPanel">
+            <div class="filterHead">
+              <div class="filterTitle">فیلترهای پیشرفته</div>
+              <div class="row compact" style="gap:8px">
+                <button class="btn ghost" id="btnClearFilters" type="button">پاک کردن فیلترها</button>
+              </div>
+            </div>
+
+            <div class="filterGrid cols3">
+              <div>
+                <label class="field">نوع معامله</label>
+                <select id="sfDeal">
+                  <option value="any" selected>همه</option>
+                  <option value="rent">رهن و اجاره</option>
+                  <option value="sale">خرید و فروش</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field">نوع ملک</label>
+                <select id="sfType">
+                  <option value="any" selected>همه</option>
+                  <option value="commercial">تجاری</option>
+                  <option value="residential">مسکونی</option>
+                  <option value="storage">انباری</option>
+                  <option value="gardenhouse">خونه باغ</option>
+                </select>
+              </div>
+
+              <div id="sfResSubWrap" style="display:none">
+                <label class="field">زیرنوع مسکونی</label>
+                <select id="sfResSub">
+                  <option value="any" selected>همه</option>
+                  <option value="apartment">آپارتمانی</option>
+                  <option value="villa">ویلایی</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="filterLine"></div>
+
+            <div class="filterGrid cols2">
+              <div>
+                <label class="field">متراژ از</label>
+                <input id="sfAreaMin" type="number" inputmode="numeric" placeholder="مثلاً: 100" />
+              </div>
+              <div>
+                <label class="field">متراژ تا</label>
+                <input id="sfAreaMax" type="number" inputmode="numeric" placeholder="مثلاً: 500" />
+              </div>
+            </div>
+
+            <div class="filterGrid cols2">
+              <div>
+                <label class="field" id="sfPriceMinLabel">قیمت/رهن از</label>
+                <input id="sfPriceMin" type="number" inputmode="numeric" placeholder="مثلاً: 500000000" />
+              </div>
+              <div>
+                <label class="field" id="sfPriceMaxLabel">قیمت/رهن تا</label>
+                <input id="sfPriceMax" type="number" inputmode="numeric" placeholder="مثلاً: 3000000000" />
+              </div>
+            </div>
+
+            <div id="sfRentOnly" style="display:none">
+              <div class="filterGrid cols2">
+                <div>
+                  <label class="field">اجاره ماهانه از</label>
+                  <input id="sfMonthlyMin" type="number" inputmode="numeric" placeholder="مثلاً: 0" />
+                </div>
+                <div>
+                  <label class="field">اجاره ماهانه تا</label>
+                  <input id="sfMonthlyMax" type="number" inputmode="numeric" placeholder="مثلاً: 25000000" />
+                </div>
+              </div>
+              <div class="miniHint">اگر «نوع معامله» روی “رهن و اجاره” باشد، این فیلتر فعال است.</div>
+            </div>
+
+            <div class="filterLine"></div>
+
+            <label class="field">آپشن‌ها</label>
+            <div class="ctrlGroup">
+              <input type="checkbox" id="sfKey"><label class="ctrl" for="sfKey">🔑 کلید اول</label>
+              <input type="checkbox" id="sfKol"><label class="ctrl" for="sfKol">🧱 کلنگی</label>
+              <input type="checkbox" id="sfFull"><label class="ctrl" for="sfFull">✨ فول امکانات</label>
+            </div>
+
+            <label class="field">امکانات (انتخاب چندتایی)</label>
+            <div class="ctrlGroup">
+              <input type="checkbox" class="sfAmen" id="sa1" value="کمد و کابینت"><label class="ctrl" for="sa1">🧰 کمد و کابینت</label>
+              <input type="checkbox" class="sfAmen" id="sa2" value="گاز شهری"><label class="ctrl" for="sa2">🔥 گاز شهری</label>
+              <input type="checkbox" class="sfAmen" id="sa3" value="پارکینگ"><label class="ctrl" for="sa3">🚗 پارکینگ</label>
+              <input type="checkbox" class="sfAmen" id="sa4" value="آسانسور"><label class="ctrl" for="sa4">🛗 آسانسور</label>
+              <input type="checkbox" class="sfAmen" id="sa5" value="کولر"><label class="ctrl" for="sa5">❄️ کولر</label>
+              <input type="checkbox" class="sfAmen" id="sa6" value="پکیج/شوفاژ"><label class="ctrl" for="sa6">♨️ پکیج/شوفاژ</label>
+              <input type="checkbox" class="sfAmen" id="sa7" value="نگهبانی"><label class="ctrl" for="sa7">🛡️ نگهبانی</label>
+            </div>
+
+            <div class="miniHint">
+              نکته: امکانات به صورت «همه‌ی موارد انتخاب‌شده» فیلتر می‌شوند (AND).
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="list" id="resultList"></div>
+          <div class="empty" id="resultEmpty" style="display:none; margin-top:10px">
+            <div class="emoji">🔎</div>
+            نتیجه‌ای پیدا نشد. فیلترها را سبک‌تر کن یا عبارت دیگری بزن.
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTRACT -->
+      <section class="view" id="view-contract">
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px">
+            <div>
+              <div style="font-family:var(--font-display); font-weight:900; font-size:15px">قرارداد</div>
+              <div class="muted small">آگهی را انتخاب کن، فقط نام طرف مقابل را وارد کن.</div>
+            </div>
+            <div class="row compact" style="gap:8px">
+              <button class="btn ghost" id="btnCopy" type="button">📋 کپی</button>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <label class="field">انتخاب آگهی</label>
+              <select id="cListing"></select>
+            </div>
+            <div>
+              <label class="field">نام مالک/فروشنده (پیش‌فرض از آگهی)</label>
+              <input id="cOwner" type="text" />
+            </div>
+            <div>
+              <label class="field">نام طرف مقابل (فقط این را وارد کن)</label>
+              <input id="cOther" type="text" placeholder="مثلاً: محمد محمدی" />
+            </div>
+          </div>
+
+          <label class="field">متن قرارداد</label>
+          <textarea id="cText" class="contract"></textarea>
+          <div class="muted small" style="margin-top:10px">این متن قالب عمومی است؛ برای قرارداد رسمی، بررسی حقوقی توصیه می‌شود.</div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="view" id="view-settings">
+        <div class="card">
+          <div style="font-family:var(--font-display); font-weight:900; font-size:15px">تنظیمات</div>
+          <div class="muted small" id="debugLine">—</div>
+
+          <div class="hr"></div>
+
+          <div class="row compact" style="gap:8px">
+            <button class="btn danger" id="btnWipe" type="button">🗑️ حذف همه</button>
+          </div>
+
+          <div class="banner" style="margin-top:12px">
+            اگر “ذخیره دائمی” بسته باشد، بالای صفحه 🟡 می‌شود؛ ولی باز هم آگهی‌ها تا وقتی صفحه را نبندی، داخل ثبت‌شده‌ها دیده می‌شوند.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <div></div>
+  </div>
+</main>
+
+<!-- Bottom Navigation (mobile) -->
+<nav class="bottomNav" aria-label="ناوبری" id="bottomNav">
+  <button class="bNavBtn active" data-go="saved" type="button"><div class="i">📌</div><div class="t">ثبت‌شده</div></button>
+  <button class="bNavBtn" data-go="dashboard" type="button"><div class="i">📊</div><div class="t">داشبورد</div></button>
+  <button class="bNavBtn" data-go="new" type="button"><div class="i">📝</div><div class="t">ثبت</div></button>
+  <button class="bNavBtn" data-go="search" type="button"><div class="i">🔎</div><div class="t">جستجو</div></button>
+  <button class="bNavBtn" data-go="contract" type="button"><div class="i">📄</div><div class="t">قرارداد</div></button>
+  <button class="bNavBtn" data-go="settings" type="button"><div class="i">⚙️</div><div class="t">تنظیمات</div></button>
+</nav>
+
+<div class="toast" id="toast">
+  <b id="toastT"></b>
+  <small id="toastS"></small>
+</div>
+
+<!-- SINGLE Dashboard Module (moved between mounts) -->
+<div id="dashWrap" class="dashWrap" style="display:none">
+  <div class="dashHead">
+    <div class="dashTitle">داشبورد</div>
+    <div class="dashHint" id="dashHint">—</div>
+  </div>
+
+  <div class="kpiGrid">
+    <div class="kpi">
+      <div class="kpiIcon">📌</div>
+      <div class="kpiBody">
+        <div class="kpiT">کل آگهی‌ها</div>
+        <div class="kpiV" id="kpiTotal">0</div>
+        <div class="kpiS" id="kpiTotalSub">—</div>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpiIcon">🏠</div>
+      <div class="kpiBody">
+        <div class="kpiT">رهن و اجاره</div>
+        <div class="kpiV" id="kpiRent">0</div>
+        <div class="kpiS" id="kpiRentSub">—</div>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpiIcon">🏷️</div>
+      <div class="kpiBody">
+        <div class="kpiT">خرید و فروش</div>
+        <div class="kpiV" id="kpiSale">0</div>
+        <div class="kpiS" id="kpiSaleSub">—</div>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpiIcon">📐</div>
+      <div class="kpiBody">
+        <div class="kpiT">میانگین متراژ</div>
+        <div class="kpiV" id="kpiAvgArea">—</div>
+        <div class="kpiS">متر</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashGrid2">
+    <div class="dashCard">
+      <div class="dashCardT">ترکیب معاملات</div>
+      <div class="barRow">
+        <span class="barLbl">رهن و اجاره</span>
+        <div class="barTrack"><div class="barFill" id="barDealRent"></div></div>
+        <b class="barVal" id="valDealRent">0%</b>
+      </div>
+      <div class="barRow">
+        <span class="barLbl">خرید و فروش</span>
+        <div class="barTrack"><div class="barFill" id="barDealSale"></div></div>
+        <b class="barVal" id="valDealSale">0%</b>
+      </div>
+    </div>
+
+    <div class="dashCard">
+      <div class="dashCardT">ترکیب نوع ملک</div>
+      <div class="barRow">
+        <span class="barLbl">تجاری</span>
+        <div class="barTrack"><div class="barFill" id="barTypeCom"></div></div>
+        <b class="barVal" id="valTypeCom">0%</b>
+      </div>
+      <div class="barRow">
+        <span class="barLbl">مسکونی</span>
+        <div class="barTrack"><div class="barFill" id="barTypeRes"></div></div>
+        <b class="barVal" id="valTypeRes">0%</b>
+      </div>
+      <div class="barRow">
+        <span class="barLbl">انباری</span>
+        <div class="barTrack"><div class="barFill" id="barTypeSto"></div></div>
+        <b class="barVal" id="valTypeSto">0%</b>
+      </div>
+      <div class="barRow">
+        <span class="barLbl">خونه باغ</span>
+        <div class="barTrack"><div class="barFill" id="barTypeGar"></div></div>
+        <b class="barVal" id="valTypeGar">0%</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashGrid2">
+    <div class="dashCard">
+      <div class="dashCardT">لوکیشن‌های پرتکرار</div>
+      <div class="rankList" id="dashTopLocations"></div>
+      <div class="dashEmpty" id="dashLocEmpty" style="display:none">هنوز داده‌ای وجود ندارد.</div>
+    </div>
+
+    <div class="dashCard">
+      <div class="dashCardT">آخرین آگهی‌ها</div>
+      <div class="recentList" id="dashRecent"></div>
+      <div class="dashEmpty" id="dashRecentEmpty" style="display:none">هنوز آگهی‌ای ثبت نشده.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Polyfills (old WebView) ===== */
+(function(){
+  if(!Element.prototype.matches){
+    Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+  }
+  if(!Element.prototype.closest){
+    Element.prototype.closest = function(s){
+      var el = this;
+      while(el && el.nodeType === 1){
+        if(el.matches(s)) return el;
+        el = el.parentElement || el.parentNode;
+      }
+      return null;
+    };
+  }
+})();
+
+/* ===== Helpers ===== */
+function $(s){ return document.querySelector(s); }
+function $$(s){ return Array.from(document.querySelectorAll(s)); }
+
+function toast(t, s){
+  $("#toastT").textContent = t || "";
+  $("#toastS").textContent = s || "";
+  var el = $("#toast");
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ el.classList.remove("show"); }, 2400);
+}
+function esc(s){
+  return String(s==null?"":s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function toEnglishDigits(str){
+  var s = String(str==null?"":str);
+  var fa = "۰۱۲۳۴۵۶۷۸۹";
+  var ar = "٠١٢٣٤٥٦٧٨٩";
+  var out = "";
+  for(var i=0;i<s.length;i++){
+    var ch = s[i];
+    var fi = fa.indexOf(ch);
+    var ai = ar.indexOf(ch);
+    if(fi>=0) out += String(fi);
+    else if(ai>=0) out += String(ai);
+    else out += ch;
+  }
+  return out;
+}
+function parseMoney(input){
+  var raw = toEnglishDigits(String(input==null?"":input)).trim();
+  if(!raw) return null;
+  var cleaned = raw.replace(/[,\s٬]/g,"");
+  var n = Number(cleaned);
+  if(!isFinite(n) || n < 0) return null;
+  return Math.floor(n);
+}
+function fmt(n){ return Number(n||0).toLocaleString("fa-IR"); }
+function uid(){ return "lst_"+Date.now()+"_"+Math.random().toString(16).slice(2); }
+
+function getRadio(name){
+  var el = document.querySelector('input[name="'+name+'"]:checked');
+  return el ? el.value : "";
+}
+function setRadio(name, value){
+  var els = document.querySelectorAll('input[name="'+name+'"]');
+  for(var i=0;i<els.length;i++){
+    els[i].checked = (els[i].value === value);
+  }
+}
+
+/* ===== Global JS error reporter ===== */
+function setLastAction(text){
+  var el = $("#lastAction");
+  if(el) el.textContent = "آخرین عملیات: " + text;
+}
+window.addEventListener("error", function(ev){
+  try{
+    setLastAction("خطای JS: " + (ev.message || "خطای نامشخص"));
+    toast("خطای برنامه", ev.message || "خطای نامشخص");
+  }catch(e){}
+});
+
+/* ===== Force toggle labels (reliable) ===== */
+document.addEventListener("click", function(e){
+  var t = e.target;
+  if(t && t.nodeType === 3) t = t.parentElement;
+  var ctrl = t && t.closest ? t.closest(".ctrl") : null;
+  if(!ctrl) return;
+
+  e.preventDefault();
+
+  var forId = ctrl.getAttribute("for");
+  if(!forId) return;
+
+  var inp = document.getElementById(forId);
+  if(!inp || inp.disabled) return;
+
+  if(inp.type==="checkbox") inp.checked = !inp.checked;
+  else if(inp.type==="radio") inp.checked = true;
+
+  inp.dispatchEvent(new Event("change", {bubbles:true}));
+});
+
+/* ===== Theme ===== */
+var THEME_KEY="amlak_ultra_theme";
+function setTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  try{ localStorage.setItem(THEME_KEY, theme); }catch(e){}
+}
+function loadTheme(){
+  try{ setTheme(localStorage.getItem(THEME_KEY) || "dark"); }
+  catch(e){ setTheme("dark"); }
+}
+$("#btnTheme").addEventListener("click", function(){
+  var cur = document.documentElement.getAttribute("data-theme") || "dark";
+  setTheme(cur==="dark" ? "light" : "dark");
+});
+document.addEventListener("click", function(e){
+  var th = e.target.closest ? e.target.closest("[data-theme]") : null;
+  if(th){ e.preventDefault(); setTheme(th.getAttribute("data-theme")); }
+});
+
+/* ===== Drawer / Nav ===== */
+function openDrawer(){ $("#drawer").classList.add("show"); $("#overlay").classList.add("show"); }
+function closeDrawer(){ $("#drawer").classList.remove("show"); $("#overlay").classList.remove("show"); }
+$("#btnDrawer").addEventListener("click", openDrawer);
+$("#btnClose").addEventListener("click", closeDrawer);
+$("#overlay").addEventListener("click", closeDrawer);
+
+function setBottomNavActive(name){
+  var btns = $$("#bottomNav [data-go]");
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.toggle("active", btns[i].getAttribute("data-go")===name);
+  }
+}
+function setDrawerActive(name){
+  var btns = $$("#drawer [data-go]");
+  for(var i=0;i<btns.length;i++){
+    btns[i].classList.toggle("active", btns[i].getAttribute("data-go")===name);
+  }
+}
+
+/* ===== Dashboard Mount (IMPORTANT) ===== */
+function mountDashboard(where){
+  var dash = $("#dashWrap");
+  var mSaved = $("#dashMountSaved");
+  var mDash = $("#dashMountDashboard");
+  if(!dash || !mSaved || !mDash) return;
+
+  // show it and move
+  dash.style.display = "";
+  if(where==="dashboard") mDash.appendChild(dash);
+  else mSaved.appendChild(dash);
+}
+
+function setActiveView(name){
+  var views = $$(".view");
+  for(var i=0;i<views.length;i++) views[i].classList.remove("active");
+  var v = $("#view-"+name);
+  if(v) v.classList.add("active");
+
+  setDrawerActive(name);
+  setBottomNavActive(name);
+
+  closeDrawer();
+
+  // mount dashboard in correct place
+  if(name==="dashboard") mountDashboard("dashboard");
+  else mountDashboard("saved");
+
+  // refresh data renders
+  if(name==="saved") renderSaved();
+  if(name==="dashboard") renderDashboard();
+  if(name==="search") renderSearch();
+  if(name==="contract") renderContract();
+  if(name==="settings") renderSettings();
+}
+
+document.addEventListener("click", function(e){
+  var go = e.target.closest ? e.target.closest("[data-go]") : null;
+  if(go){ e.preventDefault(); setActiveView(go.getAttribute("data-go")); }
+});
+
+/* ===== Storage ===== */
+var APP_KEY="amlak_ultra_state";
+var storageMode="memory";
+var state = { listings: [] };
+
+function canUseLocalStorage(){
+  try{
+    var k="__t";
+    localStorage.setItem(k,"1");
+    localStorage.removeItem(k);
+    return true;
+  }catch(e){ return false; }
+}
+function loadState(){
+  if(canUseLocalStorage()){
+    storageMode="localStorage";
+    try{
+      var raw = localStorage.getItem(APP_KEY);
+      if(raw){
+        var data = JSON.parse(raw);
+        state.listings = Array.isArray(data.listings) ? data.listings : [];
+      }
+    }catch(e){
+      state.listings = [];
+    }
+  }else{
+    storageMode="memory";
+    state.listings = [];
+  }
+}
+function saveState(){
+  if(storageMode!=="localStorage") return false;
+  try{
+    localStorage.setItem(APP_KEY, JSON.stringify({listings: state.listings}));
+    return true;
+  }catch(e){
+    storageMode="memory";
+    return false;
+  }
+}
+function updateStoreStatus(){
+  var el=$("#storeStatus");
+  if(storageMode==="localStorage"){
+    el.className="pill good";
+    el.textContent="🟢 ذخیره فعال";
+  }else{
+    el.className="pill bad";
+    el.textContent="🟡 ذخیره موقت";
+  }
+}
+
+/* ===== Domain helpers ===== */
+function dealText(d){ return d==="rent" ? "رهن و اجاره" : "خرید و فروش"; }
+function typeText(t){
+  if(t==="commercial") return "تجاری";
+  if(t==="residential") return "مسکونی";
+  if(t==="storage") return "انباری";
+  return "خونه باغ";
+}
+function resSubText(s){ return s==="villa" ? "ویلایی" : "آپارتمانی"; }
+function mainMoneyLine(it){
+  if(it.deal==="rent"){
+    return "رهن: "+fmt(it.deposit)+" • اجاره: "+fmt(it.monthly) + (it.bayane!=null ? (" • بیعانه: "+fmt(it.bayane)) : "");
+  }
+  return "قیمت فروش: "+fmt(it.salePrice) + (it.bayane!=null ? (" • بیعانه: "+fmt(it.bayane)) : "");
+}
+
+/* ===== Dashboard logic ===== */
+function pct(n, total){
+  if(!total) return 0;
+  return Math.round((n / total) * 100);
+}
+function setBar(fillId, valId, n, total){
+  var p = pct(n, total);
+  var f = document.getElementById(fillId);
+  var v = document.getElementById(valId);
+  if(f) f.style.width = p + "%";
+  if(v) v.textContent = p + "%";
+}
+function groupCount(arr, keyFn){
+  var m = {};
+  for(var i=0;i<arr.length;i++){
+    var k = (keyFn(arr[i]) || "").trim();
+    if(!k) continue;
+    m[k] = (m[k]||0) + 1;
+  }
+  return m;
+}
+function topEntries(mapObj, n){
+  var arr = Object.keys(mapObj).map(function(k){ return {k:k, v: mapObj[k]}; });
+  arr.sort(function(a,b){ return b.v - a.v; });
+  return arr.slice(0, n);
+}
+function renderDashboard(){
+  var all = state.listings.slice();
+  var total = all.length;
+
+  var rentCount = 0, saleCount = 0, sumArea = 0;
+  var typeCom=0, typeRes=0, typeSto=0, typeGar=0;
+
+  for(var i=0;i<all.length;i++){
+    var it = all[i];
+    if(it.deal==="rent") rentCount++;
+    else if(it.deal==="sale") saleCount++;
+    sumArea += Number(it.area||0);
+
+    if(it.type==="commercial") typeCom++;
+    else if(it.type==="residential") typeRes++;
+    else if(it.type==="storage") typeSto++;
+    else if(it.type==="gardenhouse") typeGar++;
+  }
+
+  var avgArea = total ? Math.round(sumArea/total) : 0;
+
+  var elTotal = $("#kpiTotal"); if(elTotal) elTotal.textContent = total.toLocaleString("fa-IR");
+  var elRent  = $("#kpiRent");  if(elRent)  elRent.textContent  = rentCount.toLocaleString("fa-IR");
+  var elSale  = $("#kpiSale");  if(elSale)  elSale.textContent  = saleCount.toLocaleString("fa-IR");
+  var elAvg   = $("#kpiAvgArea"); if(elAvg) elAvg.textContent = total ? avgArea.toLocaleString("fa-IR") : "—";
+
+  var hint = $("#dashHint");
+  if(hint){
+    hint.textContent = total ? ("آخرین بروزرسانی: " + new Date().toLocaleTimeString("fa-IR")) : "—";
+  }
+
+  var subTotal = $("#kpiTotalSub");
+  if(subTotal) subTotal.textContent = storageMode==="localStorage" ? "ذخیره دائمی فعال" : "ذخیره موقت (تا بستن صفحه)";
+
+  var rentSub = $("#kpiRentSub");
+  if(rentSub) rentSub.textContent = total ? (pct(rentCount,total).toLocaleString("fa-IR")+"٪ از کل") : "—";
+
+  var saleSub = $("#kpiSaleSub");
+  if(saleSub) saleSub.textContent = total ? (pct(saleCount,total).toLocaleString("fa-IR")+"٪ از کل") : "—";
+
+  setBar("barDealRent","valDealRent", rentCount, total);
+  setBar("barDealSale","valDealSale", saleCount, total);
+
+  setBar("barTypeCom","valTypeCom", typeCom, total);
+  setBar("barTypeRes","valTypeRes", typeRes, total);
+  setBar("barTypeSto","valTypeSto", typeSto, total);
+  setBar("barTypeGar","valTypeGar", typeGar, total);
+
+  var locMap = groupCount(all, function(it){ return it.location || ""; });
+  var topLoc = topEntries(locMap, 4);
+  var locBox = $("#dashTopLocations");
+  var locEmpty = $("#dashLocEmpty");
+  if(locBox){
+    if(!topLoc.length){
+      locBox.innerHTML = "";
+      if(locEmpty) locEmpty.style.display = "";
+    }else{
+      if(locEmpty) locEmpty.style.display = "none";
+      locBox.innerHTML = topLoc.map(function(x, idx){
+        return ''+
+          '<div class="rankItem">'+
+            '<div class="rankLeft">'+
+              '<div class="rankName">📍 '+esc(x.k)+'</div>'+
+              '<div class="rankMeta">رتبه '+(idx+1).toLocaleString("fa-IR")+'</div>'+
+            '</div>'+
+            '<div class="badgeNum">'+x.v.toLocaleString("fa-IR")+'</div>'+
+          '</div>';
+      }).join("");
+    }
+  }
+
+  var recent = all.slice().sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); }).slice(0,4);
+  var recBox = $("#dashRecent");
+  var recEmpty = $("#dashRecentEmpty");
+  if(recBox){
+    if(!recent.length){
+      recBox.innerHTML = "";
+      if(recEmpty) recEmpty.style.display = "";
+    }else{
+      if(recEmpty) recEmpty.style.display = "none";
+      recBox.innerHTML = recent.map(function(it){
+        var m = it.deal==="rent" ? ("رهن: "+fmt(it.deposit)+" • اجاره: "+fmt(it.monthly)) : ("فروش: "+fmt(it.salePrice));
+        return ''+
+          '<div class="recentItem">'+
+            '<div class="recentLeft">'+
+              '<div class="recentName">منطقه: '+esc(it.title)+'</div>'+
+              '<div class="recentMeta">'+esc(it.location||"—")+' • '+esc(m)+'</div>'+
+            '</div>'+
+            '<div class="badgeNum">📐 '+fmt(it.area)+'</div>'+
+          '</div>';
+      }).join("");
+    }
+  }
+}
+
+/* ===== Form UI sync ===== */
+function syncResidential(){
+  $("#resSubWrap").style.display = (getRadio("type")==="residential") ? "" : "none";
+}
+function syncDealBoxes(){
+  var d=getRadio("deal");
+  $("#priceRentBox").style.display = (d==="rent") ? "" : "none";
+  $("#priceSaleBox").style.display = (d==="sale") ? "" : "none";
+}
+document.addEventListener("change", function(e){
+  if(e.target && e.target.name==="type") syncResidential();
+  if(e.target && e.target.name==="deal") syncDealBoxes();
+});
+$("#o_full").addEventListener("change", function(){
+  if($("#o_full").checked){
+    var am = $$(".amen");
+    for(var i=0;i<am.length;i++) am[i].checked=true;
+  }
+});
+
+/* ===== Save / Edit ===== */
+var editingId = null;
+
+function showFormError(msg){
+  var box=$("#formErr");
+  if(!msg){
+    box.classList.remove("show");
+    box.textContent="";
+    return;
+  }
+  box.textContent=msg;
+  box.classList.add("show");
+}
+function clearForm(){
+  editingId=null;
+  $("#editHint").textContent="";
+  $("#btnCancelEdit").style.display="none";
+  showFormError("");
+  $("#form").reset();
+  setRadio("deal","rent");
+  setRadio("type","commercial");
+  setRadio("resSub","apartment");
+  setRadio("elec","single");
+  syncResidential();
+  syncDealBoxes();
+}
+$("#btnClear").addEventListener("click", function(){ clearForm(); toast("فرم پاک شد",""); });
+$("#btnCancelEdit").addEventListener("click", function(){ clearForm(); setActiveView("saved"); });
+
+function collectAmenities(){
+  var out=[];
+  var am=$$(".amen");
+  for(var i=0;i<am.length;i++){
+    if(am[i].checked) out.push(am[i].value);
+  }
+  return out;
+}
+function buildItemOrError(){
+  var title = ($("#fTitle").value||"").trim(); /* منطقه */
+  var person = ($("#fPerson").value||"").trim();
+  var phone = ($("#fPhone").value||"").trim();
+  var location = ($("#fLocation").value||"").trim();
+  var area = parseMoney($("#fArea").value);
+
+  var deal = getRadio("deal") || "rent";
+  var type = getRadio("type") || "commercial";
+  var resSub = (type==="residential") ? (getRadio("resSub")||"") : "";
+
+  if(!title) return {ok:false,msg:"منطقه را وارد کن."};
+  if(!person) return {ok:false,msg:"نام و نام خانوادگی فرد را وارد کن."};
+  if(!phone) return {ok:false,msg:"شماره تلفن فرد را وارد کن."};
+  if(!location) return {ok:false,msg:"موقعیت را وارد کن."};
+  if(area==null || area<=0) return {ok:false,msg:"متراژ نامعتبر است."};
+  if(type==="residential" && !resSub) return {ok:false,msg:"زیرنوع مسکونی را انتخاب کن."};
+
+  var deposit=null, monthly=null, salePrice=null, bayane=null;
+  if(deal==="rent"){
+    deposit = parseMoney($("#fDeposit").value);
+    monthly = parseMoney($("#fMonthly").value);
+    bayane  = parseMoney($("#fBayaneRent").value);
+    if(deposit==null) return {ok:false,msg:"مبلغ رهن/ودیعه را وارد کن."};
+    if(monthly==null) return {ok:false,msg:"اجاره ماهانه را وارد کن (برای رهن کامل: 0)."};
+  }else{
+    salePrice = parseMoney($("#fSalePrice").value);
+    bayane    = parseMoney($("#fBayaneSale").value);
+    if(salePrice==null || salePrice<=0) return {ok:false,msg:"قیمت فروش را وارد کن."};
+  }
+
+  var item = {
+    id: editingId || uid(),
+    title:title,
+    personName:person,
+    phone:phone,
+    location:location,
+    deal:deal,
+    type:type,
+    resSub:resSub,
+    area:area,
+    deposit:deposit,
+    monthly:monthly,
+    salePrice:salePrice,
+    bayane:bayane,
+    keyAval: !!$("#o_key").checked,
+    kolangi: !!$("#o_kol").checked,
+    full: !!$("#o_full").checked,
+    amenities: collectAmenities(),
+    desc: ($("#fDesc").value||"").trim(),
+    createdAt: editingId ? (function(){
+      for(var i=0;i<state.listings.length;i++){
+        if(state.listings[i].id===editingId) return state.listings[i].createdAt || Date.now();
+      }
+      return Date.now();
+    })() : Date.now(),
+    updatedAt: Date.now()
+  };
+  return {ok:true,item:item};
+}
+
+function handleSave(){
+  showFormError("");
+  setLastAction("در حال بررسی فرم…");
+
+  var res = buildItemOrError();
+  if(!res.ok){
+    showFormError(res.msg);
+    toast("ذخیره نشد", res.msg);
+    setLastAction("ذخیره نشد: " + res.msg);
+    return;
+  }
+
+  var item = res.item;
+
+  if(editingId){
+    var idx=-1;
+    for(var i=0;i<state.listings.length;i++){
+      if(state.listings[i].id===editingId){ idx=i; break; }
+    }
+    if(idx>=0) state.listings[idx]=item;
+    toast("ویرایش شد ✅", "منطقه: " + item.title);
+    setLastAction("ویرایش شد: " + item.title);
+  }else{
+    state.listings.unshift(item);
+    toast("ذخیره شد ✅", "منطقه: " + item.title);
+    setLastAction("ذخیره شد: " + item.title);
+  }
+
+  var ok = saveState();
+  updateStoreStatus();
+  if(!ok) toast("⚠️ ذخیره دائمی بسته است", "فعلاً موقت ذخیره شد (تا وقتی صفحه را نبندی).");
+
+  $("#sQ").value = "";
+  $("#sSort").value = "new";
+
+  clearForm();
+  setActiveView("saved");
+}
+
+$("#btnSave").addEventListener("click", function(){ handleSave(); });
+$("#form").addEventListener("submit", function(e){ e.preventDefault(); handleSave(); });
+
+/* ===== Saved list ===== */
+function getMainPrice(it){ return it.deal==="sale" ? Number(it.salePrice||0) : Number(it.deposit||0); }
+function sortListings(arr, mode){
+  var out = arr.slice();
+  if(mode==="old") out.sort(function(a,b){ return (a.createdAt||0)-(b.createdAt||0); });
+  else if(mode==="priceAsc") out.sort(function(a,b){ return getMainPrice(a)-getMainPrice(b); });
+  else if(mode==="priceDesc") out.sort(function(a,b){ return getMainPrice(b)-getMainPrice(a); });
+  else if(mode==="areaAsc") out.sort(function(a,b){ return (a.area||0)-(b.area||0); });
+  else if(mode==="areaDesc") out.sort(function(a,b){ return (b.area||0)-(a.area||0); });
+  else out.sort(function(a,b){ return (b.createdAt||0)-(a.createdAt||0); });
+  return out;
+}
+
+function listingHTML(it, withDelete){
+  var moneyLine = mainMoneyLine(it);
+  var tags =
+    '<span class="pill">'+esc(dealText(it.deal))+'</span>' +
+    '<span class="pill">'+esc(typeText(it.type)) + (it.type==="residential" ? (" - "+esc(resSubText(it.resSub))) : "") + '</span>' +
+    '<span class="pill">📐 متراژ '+fmt(it.area)+'</span>' +
+    (it.keyAval?'<span class="pill good">🔑 کلید اول</span>':"") +
+    (it.kolangi?'<span class="pill warn">🧱 کلنگی</span>':"") +
+    (it.full?'<span class="pill good">✨ فول امکانات</span>':"");
+
+  var phoneLink = 'tel:' + encodeURIComponent(String(it.phone||"").trim());
+
+  return ''+
+    '<div class="item">' +
+      '<h4>منطقه: '+esc(it.title)+'</h4>' +
+      '<div class="sub">' +
+        '📍 '+esc(it.location) + '<br>' +
+        '<span class="muted2">👤</span> '+esc(it.personName)+' • <span class="muted2">📞</span> '+esc(it.phone) +
+      '</div>' +
+      '<div class="priceTag"><span class="k">💰</span><span>'+esc(moneyLine)+'</span></div>' +
+      '<div class="meta">'+ tags +'</div>' +
+      '<div class="btns">' +
+        '<button class="btn ghost" type="button" onclick="editListing(\''+it.id+'\')">✏️ ویرایش</button>' +
+        '<button class="btn ghost" type="button" onclick="gotoContract(\''+it.id+'\')">📄 قرارداد</button>' +
+        '<a class="btn ghost" href="'+esc(phoneLink)+'">📞 تماس</a>' +
+        (withDelete ? '<button class="btn danger" type="button" onclick="deleteListing(\''+it.id+'\')">🗑️ حذف</button>' : '') +
+      '</div>' +
+    '</div>';
+}
+
+function renderSaved(){
+  renderDashboard();
+
+  var q = ($("#sQ").value||"").trim().toLowerCase();
+  var sort = $("#sSort").value || "new";
+
+  var arr = state.listings.slice();
+
+  if(q){
+    arr = arr.filter(function(it){
+      var hay = (it.title+" "+it.location+" "+it.personName+" "+it.phone).toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+  }
+  arr = sortListings(arr, sort);
+
+  $("#savedCount").textContent = arr.length.toLocaleString("fa-IR") + " مورد";
+  $("#savedEmpty").style.display = state.listings.length ? "none" : "";
+  $("#savedList").innerHTML = arr.map(function(it){ return listingHTML(it, true); }).join("");
+
+  renderSearch();
+  renderContractOptions();
+}
+
+$("#sQ").addEventListener("input", renderSaved);
+$("#sSort").addEventListener("change", renderSaved);
+
+window.deleteListing = function(id){
+  if(!confirm("این آگهی حذف شود؟")) return;
+  state.listings = state.listings.filter(function(x){ return x.id!==id; });
+  saveState();
+  updateStoreStatus();
+  toast("حذف شد ✅","");
+  renderSaved();
+};
+
+window.editListing = function(id){
+  var it=null;
+  for(var i=0;i<state.listings.length;i++){
+    if(state.listings[i].id===id){ it=state.listings[i]; break; }
+  }
+  if(!it) return;
+
+  editingId = id;
+  $("#editHint").textContent = "در حال ویرایش…";
+  $("#btnCancelEdit").style.display = "";
+  showFormError("");
+
+  $("#fTitle").value = it.title || "";
+  $("#fPerson").value = it.personName || "";
+  $("#fPhone").value = it.phone || "";
+  $("#fLocation").value = it.location || "";
+  $("#fArea").value = String(it.area || "");
+
+  setRadio("deal", it.deal || "rent");
+  setRadio("type", it.type || "commercial");
+  setRadio("resSub", it.resSub || "apartment");
+  setRadio("elec", "single");
+  syncResidential();
+  syncDealBoxes();
+
+  $("#fDeposit").value = it.deposit!=null ? String(it.deposit) : "";
+  $("#fMonthly").value = it.monthly!=null ? String(it.monthly) : "";
+  $("#fBayaneRent").value = (it.deal==="rent" && it.bayane!=null) ? String(it.bayane) : "";
+  $("#fSalePrice").value = it.salePrice!=null ? String(it.salePrice) : "";
+  $("#fBayaneSale").value = (it.deal==="sale" && it.bayane!=null) ? String(it.bayane) : "";
+
+  $("#o_key").checked = !!it.keyAval;
+  $("#o_kol").checked = !!it.kolangi;
+  $("#o_full").checked = !!it.full;
+
+  var am = $$(".amen");
+  for(var j=0;j<am.length;j++) am[j].checked = false;
+  (it.amenities||[]).forEach(function(a){
+    for(var k=0;k<am.length;k++){
+      if(am[k].value===a) am[k].checked=true;
+    }
+  });
+
+  $("#fDesc").value = it.desc || "";
+
+  setActiveView("new");
+};
+
+/* ===== SEARCH filters ===== */
+function collectSearchAmenities(){
+  var out=[];
+  var am = $$(".sfAmen");
+  for(var i=0;i<am.length;i++){
+    if(am[i].checked) out.push(am[i].value);
+  }
+  return out;
+}
+function syncSearchFilterUI(){
+  var deal = ($("#sfDeal").value || "any");
+  var type = ($("#sfType").value || "any");
+
+  var minL = $("#sfPriceMinLabel");
+  var maxL = $("#sfPriceMaxLabel");
+
+  if(deal==="rent"){
+    if(minL) minL.textContent = "رهن/ودیعه از";
+    if(maxL) maxL.textContent = "رهن/ودیعه تا";
+    $("#sfRentOnly").style.display = "";
+  }else if(deal==="sale"){
+    if(minL) minL.textContent = "قیمت فروش از";
+    if(maxL) maxL.textContent = "قیمت فروش تا";
+    $("#sfRentOnly").style.display = "none";
+    $("#sfMonthlyMin").value="";
+    $("#sfMonthlyMax").value="";
+  }else{
+    if(minL) minL.textContent = "قیمت/رهن از";
+    if(maxL) maxL.textContent = "قیمت/رهن تا";
+    $("#sfRentOnly").style.display = "none";
+    $("#sfMonthlyMin").value="";
+    $("#sfMonthlyMax").value="";
+  }
+
+  $("#sfResSubWrap").style.display = (type==="residential") ? "" : "none";
+  if(type!=="residential") $("#sfResSub").value = "any";
+}
+function resetSearchFilters(){
+  $("#sfDeal").value="any";
+  $("#sfType").value="any";
+  $("#sfResSub").value="any";
+
+  $("#sfAreaMin").value="";
+  $("#sfAreaMax").value="";
+  $("#sfPriceMin").value="";
+  $("#sfPriceMax").value="";
+  $("#sfMonthlyMin").value="";
+  $("#sfMonthlyMax").value="";
+
+  $("#sfKey").checked=false;
+  $("#sfKol").checked=false;
+  $("#sfFull").checked=false;
+
+  var am=$$(".sfAmen");
+  for(var i=0;i<am.length;i++) am[i].checked=false;
+
+  syncSearchFilterUI();
+}
+
+function renderSearch(){
+  var q = ($("#q").value||"").trim().toLowerCase();
+  var arr = state.listings.slice();
+
+  if(q){
+    arr = arr.filter(function(it){
+      var hay = (it.title+" "+it.location+" "+it.personName+" "+it.phone).toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+  }
+
+  var fDeal = $("#sfDeal").value || "any";
+  var fType = $("#sfType").value || "any";
+  var fResSub = $("#sfResSub").value || "any";
+
+  var areaMin = parseMoney($("#sfAreaMin").value);
+  var areaMax = parseMoney($("#sfAreaMax").value);
+
+  var priceMin = parseMoney($("#sfPriceMin").value);
+  var priceMax = parseMoney($("#sfPriceMax").value);
+
+  var monthlyMin = parseMoney($("#sfMonthlyMin").value);
+  var monthlyMax = parseMoney($("#sfMonthlyMax").value);
+
+  var needKey = !!$("#sfKey").checked;
+  var needKol = !!$("#sfKol").checked;
+  var needFull = !!$("#sfFull").checked;
+
+  var needAmenities = collectSearchAmenities();
+
+  arr = arr.filter(function(it){
+    if(fDeal!=="any" && it.deal!==fDeal) return false;
+    if(fType!=="any" && it.type!==fType) return false;
+
+    if(fType==="residential" && fResSub!=="any"){
+      if(it.resSub!==fResSub) return false;
+    }
+
+    var a = Number(it.area||0);
+    if(areaMin!=null && a < areaMin) return false;
+    if(areaMax!=null && a > areaMax) return false;
+
+    var p = (it.deal==="sale") ? Number(it.salePrice||0) : Number(it.deposit||0);
+    if(priceMin!=null && p < priceMin) return false;
+    if(priceMax!=null && p > priceMax) return false;
+
+    if(fDeal==="rent"){
+      var m = Number(it.monthly||0);
+      if(monthlyMin!=null && m < monthlyMin) return false;
+      if(monthlyMax!=null && m > monthlyMax) return false;
+    }
+
+    if(needKey && !it.keyAval) return false;
+    if(needKol && !it.kolangi) return false;
+    if(needFull && !it.full) return false;
+
+    if(needAmenities.length){
+      var have = it.amenities || [];
+      for(var i=0;i<needAmenities.length;i++){
+        if(have.indexOf(needAmenities[i]) < 0) return false;
+      }
+    }
+    return true;
+  });
+
+  $("#searchCount").textContent = arr.length.toLocaleString("fa-IR") + " مورد";
+  $("#resultEmpty").style.display = arr.length ? "none" : "";
+  $("#resultList").innerHTML = arr.map(function(it){ return listingHTML(it, false); }).join("");
+}
+
+$("#q").addEventListener("input", renderSearch);
+$("#btnResetSearch").addEventListener("click", function(){
+  $("#q").value="";
+  resetSearchFilters();
+  renderSearch();
+});
+$("#btnClearFilters").addEventListener("click", function(){
+  resetSearchFilters();
+  renderSearch();
+});
+["sfDeal","sfType","sfResSub","sfAreaMin","sfAreaMax","sfPriceMin","sfPriceMax","sfMonthlyMin","sfMonthlyMax","sfKey","sfKol","sfFull"].forEach(function(id){
+  var el = document.getElementById(id);
+  if(el){
+    el.addEventListener("input", function(){
+      if(id==="sfDeal" || id==="sfType") syncSearchFilterUI();
+      renderSearch();
+    });
+    el.addEventListener("change", function(){
+      if(id==="sfDeal" || id==="sfType") syncSearchFilterUI();
+      renderSearch();
+    });
+  }
+});
+$$(".sfAmen").forEach(function(el){
+  el.addEventListener("change", renderSearch);
+});
+
+/* ===== Contract ===== */
+function renderContractOptions(){
+  var sel=$("#cListing");
+  if(!state.listings.length){
+    sel.innerHTML = '<option value="">— آگهی‌ای وجود ندارد —</option>';
+    return;
+  }
+  var cur = sel.value;
+  sel.innerHTML = state.listings.map(function(it){
+    return '<option value="'+esc(it.id)+'">منطقه: '+esc(it.title)+'</option>';
+  }).join("");
+  sel.value = (cur && state.listings.some(function(x){ return x.id===cur; })) ? cur : state.listings[0].id;
+}
+function buildContractText(it){
+  var owner = ($("#cOwner").value || it.personName || "").trim();
+  var other = ($("#cOther").value || "").trim();
+
+  var moneyBlock = "";
+  if(it.deal==="rent"){
+    moneyBlock = "رهن/ودیعه: "+fmt(it.deposit)+" تومان\n"
+      + "اجاره ماهانه: "+fmt(it.monthly)+" تومان\n"
+      + (it.bayane!=null ? ("بیعانه: "+fmt(it.bayane)+" تومان\n") : "");
+  }else{
+    moneyBlock = "قیمت فروش: "+fmt(it.salePrice)+" تومان\n"
+      + (it.bayane!=null ? ("بیعانه: "+fmt(it.bayane)+" تومان\n") : "");
+  }
+
+  return "بسمه تعالی\n\n"
+    + "قرارداد "+dealText(it.deal)+"\n\n"
+    + "۱) "+(owner||"…………………")+" (مالک/فروشنده/موجر)\n"
+    + "۲) "+(other||"…………………")+" (طرف مقابل)\n\n"
+    + "مشخصات ملک:\n"
+    + "- منطقه: "+(it.title||"—")+"\n"
+    + "- نوع ملک: "+typeText(it.type)+(it.type==="residential" ? (" - "+resSubText(it.resSub)) : "")+"\n"
+    + "- موقعیت: "+(it.location||"—")+"\n"
+    + "- متراژ: "+(it.area||"—")+" متر\n"
+    + "- تلفن مالک: "+(it.phone||"—")+"\n\n"
+    + "مبالغ:\n"+moneyBlock+"\n"
+    + "امضا:\n"
+    + "امضای مالک: ……………………\n"
+    + "امضای طرف مقابل: ……………………\n";
+}
+function renderContract(){
+  renderContractOptions();
+  var id = $("#cListing").value;
+  var it=null;
+  for(var i=0;i<state.listings.length;i++){
+    if(state.listings[i].id===id){ it=state.listings[i]; break; }
+  }
+  if(!it){ $("#cText").value="آگهی‌ای برای قرارداد وجود ندارد."; return; }
+  if(!$("#cOwner").value) $("#cOwner").value = it.personName || "";
+  $("#cText").value = buildContractText(it);
+}
+window.gotoContract = function(id){
+  setActiveView("contract");
+  $("#cListing").value = id;
+  var it=null;
+  for(var i=0;i<state.listings.length;i++){
+    if(state.listings[i].id===id){ it=state.listings[i]; break; }
+  }
+  if(it) $("#cOwner").value = it.personName || "";
+  renderContract();
+};
+["cListing","cOwner","cOther"].forEach(function(id){
+  $("#"+id).addEventListener("input", renderContract);
+  $("#"+id).addEventListener("change", renderContract);
+});
+$("#btnCopy").addEventListener("click", function(){
+  var txt = $("#cText").value || "";
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){ toast("کپی شد ✅",""); })
+    .catch(function(){ toast("کپی نشد","متن را دستی انتخاب و کپی کن."); });
+  }else{
+    toast("کپی نشد","متن را دستی انتخاب و کپی کن.");
+  }
+});
+
+/* ===== Settings ===== */
+function renderSettings(){
+  $("#debugLine").textContent = "حالت ذخیره: " + (storageMode==="localStorage" ? "دائمی ✅" : "موقت ⚠️");
+}
+$("#btnWipe").addEventListener("click", function(){
+  if(!confirm("همه آگهی‌ها حذف شوند؟")) return;
+  state.listings = [];
+  try{ localStorage.removeItem(APP_KEY); }catch(e){}
+  updateStoreStatus();
+  toast("حذف شد ✅","");
+  renderSaved();
+  setActiveView("saved");
+});
+
+/* ===== Init ===== */
+(function init(){
+  loadTheme();
+  loadState();
+  updateStoreStatus();
+
+  setRadio("deal","rent");
+  setRadio("type","commercial");
+  setRadio("resSub","apartment");
+  setRadio("elec","single");
+
+  syncResidential();
+  syncDealBoxes();
+
+  resetSearchFilters();
+  syncSearchFilterUI();
+
+  // mount dashboard default into saved
+  mountDashboard("saved");
+
+  renderSaved();
+  renderSearch();
+  renderContract();
+  renderSettings();
+  setLastAction("برنامه آماده است.");
+})();
+</script>
+</body>
+</html>
