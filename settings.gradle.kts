@@ -12,5 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "ProShellApp"
+
+rootProject.name = "ProAndroidShell"
 include(":app")

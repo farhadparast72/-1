@@ -1,16 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Main app theme -->
-    <style name="Theme.ProShellApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.ProShell" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_dark_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
-    </style>
-
-    <!-- Splash / starting theme -->
-    <style name="Theme.ProShellApp.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="postSplashScreenTheme">@style/Theme.ProShellApp</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
 </resources>

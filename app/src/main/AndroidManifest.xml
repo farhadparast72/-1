@@ -4,21 +4,21 @@
 
     <application
         android:allowBackup="true"
+        android:supportsRtl="true"
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.ProShellApp">
+        android:roundIcon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.ProShell">
+
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.ProShellApp.Starting">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>
