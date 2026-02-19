@@ -1,6 +1,3 @@
 <resources>
-    <string name="app_name">حسابدار شخصی (اندروید)</string>
-    <string name="nav_tx">تراکنش‌ها</string>
-    <string name="nav_debt">بدهی/طلب</string>
-    <string name="nav_backup">بکاپ</string>
+    <string name="app_name">مدیریت املاک — Ultra</string>
 </resources>
