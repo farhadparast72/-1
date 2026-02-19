@@ -1,8 +1,7 @@
-name: Android Build
+name: Build APK (Debug)
 
 on:
   push:
-    branches: ["**"]
   workflow_dispatch:
 
 jobs:
@@ -13,42 +12,68 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
-          cache: gradle
+          java-version: "17"
 
-      - name: Grant execute permission
-        run: chmod +x ./gradlew
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Locate Gradle project (find gradlew)
+        id: loc
+        run: |
+          set -e
+          if [ -f "./gradlew" ]; then
+            echo "dir=." >> $GITHUB_OUTPUT
+            echo "Found gradlew at repo root."
+          else
+            G=$(find . -maxdepth 5 -name gradlew -type f -print -quit)
+            if [ -z "$G" ]; then
+              echo "ERROR: gradlew not found anywhere."
+              echo "Repo tree (top):"
+              ls -la
+              echo "Files (maxdepth 3):"
+              find . -maxdepth 3 -type f -print
+              exit 1
+            fi
+            D=$(dirname "$G")
+            echo "dir=$D" >> $GITHUB_OUTPUT
+            echo "Found gradlew at: $G"
+          fi
 
       - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
-
-      - name: List outputs (debug)
-        if: always()
         run: |
-          echo "== find outputs =="
-          find app/build/outputs -type f || true
-          echo "== ls outputs =="
-          ls -R app/build/outputs || true
+          set -e
+          cd "${{ steps.loc.outputs.dir }}"
+          chmod +x ./gradlew
+          ./gradlew --no-daemon assembleDebug --stacktrace
 
-      - name: Upload Debug APK
-        if: always()
+      - name: Find built APK
+        id: apk
+        run: |
+          set -e
+          cd "${{ steps.loc.outputs.dir }}"
+          APK=$(find . -type f -path "*/build/outputs/apk/debug/*.apk" -print -quit)
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK not found."
+            echo "Listing build/outputs:"
+            find . -maxdepth 6 -type d -name outputs -print -exec ls -la {} \; || true
+            echo "Listing any *.apk:"
+            find . -type f -name "*.apk" -print || true
+            exit 1
+          fi
+          echo "apk=$APK" >> $GITHUB_OUTPUT
+          echo "APK found at: $APK"
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ steps.apk.outputs.apk }}
           if-no-files-found: error
-
-      - name: Build Debug AAB
-        run: ./gradlew :app:bundleDebug --stacktrace
-
-      - name: Upload Debug AAB
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug-aab
-          path: app/build/outputs/bundle/debug/*.aab
-          if-no-files-found: warn
